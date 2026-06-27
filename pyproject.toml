@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "browser-ai"
+name = "browser-ai-cli"
 version = "0.1.0"
 description = "Multi-site AI aggregator CLI for Chinese AI products and search engines (Yuanbao, Kimi, Tongyi, Doubao, Baidu, Sogou WeChat, ...)."
 readme = "README.md"
@@ -47,7 +47,7 @@ Issues = "https://github.com/Weiming3/browser-ai/issues"
 "Source code" = "https://github.com/Weiming3/browser-ai"
 
 [project.scripts]
-browser-ai = "scripts.browser_ai:main"
+browser-ai-cli = "scripts.browser_ai:main"
 
 [tool.setuptools]
 include-package-data = true

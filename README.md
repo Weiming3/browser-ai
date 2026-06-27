@@ -116,23 +116,23 @@ npm install -g @playwright/mcp
 ### 方式一：`pip install`（推荐给最终用户）
 
 ```bash
-pip install browser-ai
+pip install browser-ai-cli
 playwright install chromium
 
 # 可选：反检测场景用得到
 camoufox fetch
 
 # 首次运行会自动把模板配置拷到 ~/.config/browser-ai/config/
-browser-ai list
+browser-ai-cli list
 
 # 登录某个站点（会弹一个真的浏览器窗口，自己手动登录一下就行）
-browser-ai login yuanbao
+browser-ai-cli login yuanbao
 
 # 全网智能搜索：AI + 搜索引擎一起上
-browser-ai search "python 异步编程最佳实践"
+browser-ai-cli search "python 异步编程最佳实践"
 
 # 公众号文章：搜狗 + 百度 + 元宝三路包抄
-browser-ai weixin "微信公众号 跨境电商"
+browser-ai-cli weixin "微信公众号 跨境电商"
 ```
 
 > pip 安装模式下，配置和登录态落在 `~/.config/browser-ai/`（XDG 风格），和系统其他 dotfiles 一处管理。本地 checkout 模式下仍是仓库根目录的 `config/`，老用户行为不变。

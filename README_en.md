@@ -116,23 +116,23 @@ Install both — they don't conflict. Pick whichever fits the task.
 ### Option A: `pip install` (recommended for end users)
 
 ```bash
-pip install browser-ai
+pip install browser-ai-cli
 playwright install chromium
 
 # Optional: anti-detect engine
 camoufox fetch
 
 # First run auto-copies the example configs into ~/.config/browser-ai/config/
-browser-ai list
+browser-ai-cli list
 
 # Log into one site (opens a real browser window — log in there, then close it)
-browser-ai login yuanbao
+browser-ai-cli login yuanbao
 
 # Fan out a search across AI + search engines
-browser-ai search "python asyncio best practices"
+browser-ai-cli search "python asyncio best practices"
 
 # Find WeChat articles via Sogou + Baidu + Yuanbao fallback
-browser-ai weixin "微信公众号 跨境电商"
+browser-ai-cli weixin "微信公众号 跨境电商"
 ```
 
 > Under `pip install`, your config and login sessions live in `~/.config/browser-ai/` (XDG-style), keeping them with the rest of your dotfiles. Local checkouts still use the repo's own `config/` directory — existing behavior is unchanged.
