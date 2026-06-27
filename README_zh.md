@@ -20,14 +20,14 @@
 
 ## 这是干嘛的？
 
-就是把一句话同时甩给好几个 AI（腾讯元宝、Kimi、通义千问、知乎直答、豆包……）和搜索引擎（百度、Google、搜狗微信），等它们都答完，再帮你排个序，省得自己开十个标签页来回切。
+`browser-ai` 是一个 Python CLI：把单条查询同时分发给多个 AI 服务（腾讯元宝、Kimi、通义千问、知乎直答、豆包……）和搜索引擎（百度、Google、搜狗微信），等所有源返回后做统一排序，输出一个综合结果。
 
-底层是 Playwright，配了两个可以按站点切换的引擎：
+底层基于 Playwright，提供两个可按站点切换的引擎：
 
-- **Chromium + 持久化 profile**：登录态留得住。
-- **Camoufox**：反检测 Firefox，专治那些认得出普通浏览器的站点。
+- **Chromium + 持久化 profile**：用于需要保留登录态的站点。
+- **Camoufox**（反检测 Firefox）：用于对普通浏览器进行指纹识别的搜索/抓取类站点。
 
-站点配置全写在 `config/ai_sites.json` 里。想接新站点？复制一份、改选择器，**一行 Python 都不用碰**。
+站点配置完全由 `config/ai_sites.json` 数据驱动。新增站点只需复制一段配置并修改选择器，**无需改动任何 Python 代码**。
 
 ---
 
@@ -61,21 +61,24 @@ python scripts/browser_ai.py probe "kimi 长文本"
 python scripts/browser_ai.py weixin "微信公众号 跨境电商"
 ```
 
-最后一个是本打工人最常用的。一句话三个角度，排名直接给我，省事。
-
 ---
 
-## Firefox 已经登录了？
+## 从 Firefox 导入已有登录态
 
-有现成脚本。它读你本机的 `cookies.sqlite`，写到 Chromium 的 profile 里，**不用登录两次**。
+如果某些站点你已经在 Firefox 里登录过，不必再手动登录一次。`scripts/import_firefox_login.py` 会读取你本机 Firefox 的 `cookies.sqlite` 数据库，把对应的 cookie 写入到 `config/profiles/` 下对应的 Chromium profile 目录中。
 
 ```bash
-python scripts/import_firefox_login.py --dry-run   # 先看看会动啥
-python scripts/import_firefox_login.py            # 真跑
-python scripts/import_firefox_login.py --site yuanbao  # 只搞一个站点
+# 先 dry-run 看看会动哪些 cookie
+python scripts/import_firefox_login.py --dry-run
+
+# 确认无误后再真跑
+python scripts/import_firefox_login.py
+
+# 只导入某个站点的 cookie
+python scripts/import_firefox_login.py --site yuanbao
 ```
 
-记得先 `--dry-run`。真的记得。
+强烈建议第一次使用先跑 `--dry-run` 预览。
 
 ---
 

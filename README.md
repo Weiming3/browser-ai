@@ -18,16 +18,16 @@
 
 ---
 
-## What is this thing?
+## What is this?
 
-It's a Python CLI that fans your query out to a handful of AI services (Yuanbao, Kimi, Tongyi, Zhida, Doubao, …) and search engines (Baidu, Google, Sogou WeChat), waits for them all to finish, and ranks the answers so you don't have to alt-tab through ten tabs yourself.
+`browser-ai` is a Python CLI that fans a single query out to multiple AI services (Yuanbao, Kimi, Tongyi, Zhida, Doubao, …) and search engines (Baidu, Google, Sogou WeChat), waits for all sources to respond, and ranks the combined results.
 
-Under the hood it's Playwright with two engines you swap per site:
+Under the hood it runs on Playwright with two interchangeable engines:
 
-- **Chromium with a persistent profile** — for sites that want you logged in.
-- **Camoufox** — an anti-detect Firefox, for sites that fingerprint regular browsers.
+- **Chromium with a persistent profile** — for sites that require login state.
+- **Camoufox** — an anti-detect Firefox build, for sites that fingerprint regular browsers.
 
-Site config is **100% data-driven** in `config/ai_sites.json`. To plug in a new site you copy an entry and tweak the selectors. No Python needed.
+Site configuration is **100% data-driven** through `config/ai_sites.json`. To plug in a new site you copy an entry and tweak the selectors — no Python changes required.
 
 ---
 
@@ -61,21 +61,24 @@ python scripts/browser_ai.py probe "kimi long-text"
 python scripts/browser_ai.py weixin "微信公众号 跨境电商"
 ```
 
-That last command is the one I reach for most. Three angles on the same query, ranked.
-
 ---
 
-## Already logged in on Firefox?
+## Importing Firefox login state
 
-There's a script for that. It reads your local `cookies.sqlite` and writes them into the Chromium profiles under `config/profiles/`, so you don't have to log in twice.
+If you've already signed into some sites in Firefox, you don't have to log in again. `scripts/import_firefox_login.py` reads your local Firefox `cookies.sqlite` and writes the matching cookies into the Chromium profiles under `config/profiles/`.
 
 ```bash
-python scripts/import_firefox_login.py --dry-run   # peek first
-python scripts/import_firefox_login.py            # actually do it
-python scripts/import_firefox_login.py --site yuanbao  # just one site
+# Preview which cookies would be imported
+python scripts/import_firefox_login.py --dry-run
+
+# Run the actual import
+python scripts/import_firefox_login.py
+
+# Import cookies for a single site only
+python scripts/import_firefox_login.py --site yuanbao
 ```
 
-Run `--dry-run` first. Always.
+Always run `--dry-run` first to verify the import set.
 
 ---
 
