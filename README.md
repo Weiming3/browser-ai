@@ -1,7 +1,7 @@
 <p align="center">
 	<span>>简体中文<</span>
 	&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-	<a href="README_en.md">English</a>
+	<a href="README_en.md" lang="en" hreflang="en">English</a>
 </p>
 
 # Browser-AI Toolkit / 浏览器 AI 工具集
