@@ -1,16 +1,16 @@
 <p align="center">
-	<a href="README_zh.md">简体中文</a>
+	<span>>简体中文<</span>
 	&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-	<span>>English<</span>
+	<a href="README_en.md">English</a>
 </p>
 
-# Browser-AI Toolkit
+# Browser-AI Toolkit / 浏览器 AI 工具集
 
 <p align="center">
 	<img src="https://stone.professorlee.work/api/stone/Weiming3/browser-ai" alt="Stone Badge">
 </p>
 
-> One CLI to ask a bunch of AI chatbots and search engines the same question, and get ranked answers back.
+> 一个 CLI，把同一句话同时丢给一堆 AI 和搜索引擎，然后把答案排好序端回来。
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -18,122 +18,122 @@
 
 ---
 
-## What is this?
+## 这是干嘛的？
 
-`browser-ai` is a Python CLI that fans a single query out to multiple AI services (Yuanbao, Kimi, Tongyi, Zhida, Doubao, …) and search engines (Baidu, Google, Sogou WeChat), waits for all sources to respond, and ranks the combined results.
+`browser-ai` 是一个 Python CLI：把单条查询同时分发给多个 AI 服务（腾讯元宝、Kimi、通义千问、知乎直答、豆包……）和搜索引擎（百度、Google、搜狗微信），等所有源返回后做统一排序，输出一个综合结果。
 
-Under the hood it runs on Playwright with two interchangeable engines:
+底层基于 Playwright，提供两个可按站点切换的引擎：
 
-- **Chromium with a persistent profile** — for sites that require login state.
-- **Camoufox** — an anti-detect Firefox build, for sites that fingerprint regular browsers.
+- **Chromium + 持久化 profile**：用于需要保留登录态的站点。
+- **Camoufox**（反检测 Firefox）：用于对普通浏览器进行指纹识别的搜索/抓取类站点。
 
-Site configuration is **100% data-driven** through `config/ai_sites.json`. To plug in a new site you copy an entry and tweak the selectors — no Python changes required.
+站点配置完全由 `config/ai_sites.json` 数据驱动。新增站点只需复制一段配置并修改选择器，**无需改动任何 Python 代码**。
 
 ---
 
-## How is this different from OpenRouter / LiteLLM?
+## 和 OpenRouter / LiteLLM 有什么不同？
 
-The natural first reaction is "isn't this just another AI router?" — fair question, but the routing target is different.
+看到这里第一反应很可能是「这不就是又一个 AI router 吗？」——问题合理，但**路由对象完全不同**。
 
 |  | OpenRouter / LiteLLM / OneAPI / Portkey | browser-ai |
 |---|---|---|
-| Routing target | LLM **API endpoints** | AI **web products** + **search engine pages** |
-| Call mechanism | HTTP API (OpenAI-compatible) | Browser automation (Playwright) |
-| Auth | API keys (token billing) | Your own **login sessions** (cookies / profiles) |
-| Coverage | LLM providers that expose an API | Anything with a web UI — **even without an API** |
-| Output | One model's text reply | Page text from multiple sources + **ranked aggregation** |
-| Form factor | Backend service / gateway | Local CLI |
+| 路由对象 | LLM **API 端点** | AI **网页产品** + **搜索引擎网页** |
+| 调用方式 | HTTP API（OpenAI 兼容格式） | 浏览器自动化（Playwright） |
+| 鉴权 | API Key（按 token 计费） | 你自己的**登录态**（cookie / persistent profile） |
+| 覆盖范围 | 有公开 API 的 LLM 提供商 | 有网页 UI 的一切——**包括没 API 的** |
+| 输出 | 单个模型的文本回复 | 多源页面文本 + **统一打分排序** |
+| 形态 | 后端服务 / 网关 | 本地 CLI |
 
-There are three concrete things an API router can't do that `browser-ai` covers:
+API router 做不到的三件事，`browser-ai` 都覆盖：
 
-**1. Sources that have no API, only a website.**
+**1. 那些「没 API、只有网页」的源。**
 
-Tencent Yuanbao, Zhihu Zhida, Doubao on the web, Bilibili AI summaries, Sogou WeChat — none expose a public API, yet all are useful query targets. An API router physically can't see this layer.
+腾讯元宝、知乎直答、Web 版豆包、B 站 AI 总结、搜狗微信——这些都没有公开 API，但都是有用信源。API router 物理上摸不到这一层。
 
-**2. Walled-garden content that mainstream LLMs can't see.**
+**2. 主流 LLM 看不到的「围墙花园」内容。**
 
-Gemini, GPT and Claude have training cutoffs and are heavily English-centric. They have weak coverage of content that lives behind Chinese platform walls:
+Gemini、GPT、Claude 这类模型有训练截止日期，而且语料重度偏向英文。它们对中文平台围墙内的内容覆盖非常弱：
 
-- **WeChat public accounts (公众号)** — the dominant long-form channel in Chinese, almost never indexed by Google and barely represented in training corpora.
-- **Baidu Tieba, Zhihu, Xiaohongshu** — strict anti-scraping, login-gated, invisible to Western crawlers.
-- **Real-time Chinese content** — anything posted last week, any new viral article: the model has never seen it.
+- **微信公众号**：中文长文的主战场，Google 几乎索引不到，模型训练数据里也稀薄。
+- **百度贴吧、知乎、小红书**：反爬严格、登录门槛高，西方爬虫根本看不见。
+- **中文平台的实时内容**：上周刚发的帖子、新出的爆款文章，模型压根没见过。
 
-`browser-ai` reaches these sources through Sogou WeChat (the only public WeChat aggregator), Baidu, and your logged-in Yuanbao/Kimi sessions. You're **scraping live, in-context Chinese-language ground truth**, not asking an LLM what it remembers from two years ago. The `weixin` command is built for exactly this — Sogou + Baidu + Yuanbao fan out the same query and surface Chinese long-form content the LLM can't reach, **adding a thinking dimension that the model's own knowledge can't supply**.
+`browser-ai` 通过搜狗微信（目前唯一的公开公众号聚合入口）、百度、加上你登录好的元宝 / Kimi 会话，**直接抓活的、带中文场景的真实资料**，而不是问一个 LLM 它几年前的记忆。`weixin` 命令就是为这个场景设计的——搜狗 + 百度 + 元宝三路包抄同一个查询，把 AI 看不到的中文长文搜回来，**给 LLM 的回答补充一个它够不着的思考维度**。
 
-**3. Mixed AI + search fanout.**
+**3. AI + 搜索引擎混合扇出。**
 
-Most AI routers only fan out across LLMs. `browser-ai` mixes AI products with search engines (Baidu, Google, Sogou WeChat) in the same query — which is the only practical way to "ask the AI and look up references" in one shot.
+大多数 AI router 只在 LLM 之间扇出。`browser-ai` 把 AI 产品和搜索引擎（百度、Google、搜狗微信）混在同一次查询里——这是「边问 AI、边找参考资料」的唯一实用做法。
 
-**In one line:** OpenRouter is an **API abstraction layer**. `browser-ai` is a **web abstraction layer** — it turns any web-accessible AI product or search engine into a unified query target.
+**一句话总结**：OpenRouter 做的是「**API 抽象层**」；`browser-ai` 做的是「**网页抽象层**」——把任何带网页的 AI 产品或搜索引擎，捏成一个统一查询目标。
 
 ---
 
-## Quick start
+## 快速开始
 
 ```bash
 pip install -r requirements.txt
 playwright install chromium
 
-# Optional: pull in Camoufox for the anti-detect engine
+# 可选：装上 Camoufox，反检测场景用得到
 pip install camoufox
 camoufox fetch
 
-# Copy the example configs into your local working ones
+# 把示例配置复制成你自己的本地配置
 cp config/ai_sites.example.json config/ai_sites.json
 cp config/search_routes.example.json config/search_routes.json
 
-# See what's wired up
+# 看看现在接了哪些站点
 python scripts/browser_ai.py list
 
-# Log into one site (opens a real browser window — log in there, then close it)
+# 登录某个站点（会弹一个真的浏览器窗口，自己手动登录一下就行）
 python scripts/browser_ai.py login yuanbao
 
-# Fan out a search across AI + search engines
-python scripts/browser_ai.py search "python asyncio best practices"
+# 全网智能搜索：AI + 搜索引擎一起上
+python scripts/browser_ai.py search "python 异步编程最佳实践"
 
-# Or poke a single source
-python scripts/browser_ai.py probe "kimi long-text"
+# 想单独戳某个源也行
+python scripts/browser_ai.py probe "kimi 长文本"
 
-# Find WeChat articles via Sogou + Baidu + Yuanbao fallback
+# 公众号文章：搜狗 + 百度 + 元宝三路包抄
 python scripts/browser_ai.py weixin "微信公众号 跨境电商"
 ```
 
 ---
 
-## Importing Firefox login state
+## 从 Firefox 导入已有登录态
 
-If you've already signed into some sites in Firefox, you don't have to log in again. `scripts/import_firefox_login.py` reads your local Firefox `cookies.sqlite` and writes the matching cookies into the Chromium profiles under `config/profiles/`.
+如果某些站点你已经在 Firefox 里登录过，不必再手动登录一次。`scripts/import_firefox_login.py` 会读取你本机 Firefox 的 `cookies.sqlite` 数据库，把对应的 cookie 写入到 `config/profiles/` 下对应的 Chromium profile 目录中。
 
 ```bash
-# Preview which cookies would be imported
+# 先 dry-run 看看会动哪些 cookie
 python scripts/import_firefox_login.py --dry-run
 
-# Run the actual import
+# 确认无误后再真跑
 python scripts/import_firefox_login.py
 
-# Import cookies for a single site only
+# 只导入某个站点的 cookie
 python scripts/import_firefox_login.py --site yuanbao
 ```
 
-Always run `--dry-run` first to verify the import set.
+强烈建议第一次使用先跑 `--dry-run` 预览。
 
 ---
 
-## Layout
+## 目录结构
 
 ```
 browser-ai/
 ├── scripts/
-│   ├── browser_ai.py             # main CLI
-│   ├── import_firefox_login.py   # Firefox cookie bridge
-│   └── pre-commit-check.py       # safety net before commits
+│   ├── browser_ai.py             # 主 CLI
+│   ├── import_firefox_login.py   # Firefox 登录态搬运工
+│   └── pre-commit-check.py       # 提交前安全检查
 ├── config/
-│   ├── ai_sites.example.json     # template — copy to ai_sites.json
+│   ├── ai_sites.example.json     # 模板，复制成 ai_sites.json
 │   └── search_routes.example.json
 ├── tests/
-│   └── test_smoke.py             # 26 smoke tests
+│   └── test_smoke.py             # 26 个冒烟测试
 ├── README.md
-├── README_zh.md
+├── README_en.md
 ├── LICENSE
 ├── .gitignore
 ├── .gitattributes
@@ -142,54 +142,54 @@ browser-ai/
 
 ---
 
-## Adding a new AI site
+## 加一个新 AI 站点
 
-Easiest is the wizard:
+最快是跑向导：
 
 ```bash
 python scripts/browser_ai.py add-site
 ```
 
-If you prefer to edit JSON directly, copy a site block in `config/ai_sites.json` and update: `name`, `url`, `login_url`, `login_hint`, `selectors.input`, `selectors.submit`, `selectors.response`, `preferred_engine`. Restart the CLI and the new site is live.
+愿意直接改 JSON 的话，从 `config/ai_sites.json` 里复制一段 site，改这几个字段就够了：`name`、`url`、`login_url`、`login_hint`、`selectors.input`、`selectors.submit`、`selectors.response`、`preferred_engine`。重启 CLI，新站点就上线了。
 
 ---
 
-## Which engine do I use?
+## 引擎怎么选？
 
-| Engine | Reach for it when… |
-|--------|--------------------|
-| Chromium + profile | The site needs you logged in (Yuanbao, Kimi, Doubao, Bilibili). |
-| Camoufox | A search/scraping site blocks headless Chromium (Baidu, Google, Sogou WeChat). |
+| 引擎 | 适用场景 |
+|------|----------|
+| Chromium + profile | 需要登录态的站点（元宝、Kimi、豆包、B站）。 |
+| Camoufox | 搜索/抓取类站点对无头 Chromium 不友好（百度、Google、搜狗微信）。 |
 
-Set `preferred_engine` per site in `ai_sites.json` and that's the only switch you flip. Both engines are independent — keep them both in if you want, rip them out if you don't. They're not load-bearing.
+在 `ai_sites.json` 里给每个站点设一个 `preferred_engine` 就完事，**只这一个开关**。两个引擎相互独立——想留就留，想拆就拆，反正不是承重墙。
 
 ---
 
-## Two things you actually need to know
+## 真正要看两眼的就这两件事
 
-**1. Keep your session data off the repo.**
+**一、登录态别往仓库里塞。**
 
-`config/profiles/` holds cookies, localStorage and IndexedDB — basically active login sessions for each site. The `.gitignore` already excludes it; **leave it that way**. The real `config/ai_sites.json` is gitignored too, and the `*.example.json` files are templates you copy from. The bundled `scripts/pre-commit-check.py` blocks any commit that tries to sneak those files in. Recommended:
+`config/profiles/` 里装的是 cookies、localStorage、IndexedDB，基本等同于每个站点的活动登录会话。`.gitignore` 默认已经把它排除在外了，**别动这一行**。真正的 `config/ai_sites.json` 也在 gitignore 里，模板是 `*.example.json` 那两份。仓库自带的 `scripts/pre-commit-check.py` 会拦下任何想偷偷把这俩文件加进去的 commit。建议这样用：
 
 ```bash
-python scripts/pre-commit-check.py                       # run before each commit
-cp scripts/pre-commit-check.py .git/hooks/pre-commit   # install as git hook
+python scripts/pre-commit-check.py                       # 每次提交前手动跑
+cp scripts/pre-commit-check.py .git/hooks/pre-commit   # 装成 git hook 自动拦截
 ```
 
-**2. The site's ToS still wins.**
+**二、站点的服务条款还是老大。**
 
-Most AI platforms ban automated access in their terms. Use this for personal research, not for scraping-as-a-service or anything that earns money from someone else's content. The author isn't liable if you get rate-limited, IP-banned, or worse.
-
----
-
-## Misc notes
-
-- `login` and `--headed` always open a visible window. Everything else runs headless.
-- Baidu/Google headless can still hit a captcha — pass `--headed` when that happens.
-- The default site config is a sample, not gospel. Tune it to how you actually work before you share it.
+绝大多数 AI 平台的服务条款都明确禁止自动化访问。本工具就自己研究用，别拿去当爬虫服务赚钱，也别去薅别人的付费内容。被限流、被封 IP、被发律师函，都跟作者没关系，谢谢。
 
 ---
 
-## License
+## 一些零碎
 
-MIT — see [LICENSE](LICENSE).
+- `login` 和 `--headed` 一定弹窗，其他命令默认静默。
+- 百度/Google 无头模式有时候会跳验证码，加 `--headed` 就行。
+- 默认配置是样例，**不是真理**。按自己工作流改好再发给别人看。
+
+---
+
+## 许可证
+
+MIT —— 见 [LICENSE](LICENSE)。
