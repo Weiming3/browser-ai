@@ -68,6 +68,49 @@ Most AI routers only fan out across LLMs. `browser-ai` mixes AI products with se
 
 ---
 
+## How is this different from `@playwright/mcp`?
+
+> `@playwright/mcp` is Microsoft's official Playwright MCP server: it exposes browser automation as MCP tools so any AI agent can drive a browser step-by-step.
+
+It does **not** compete with `browser-ai` on the same layer — one exposes the browser to the AI, the other is a pre-built workflow on top of the browser.
+
+|  | `@playwright/mcp` | browser-ai |
+|---|---|---|
+| Nature | Generic browser remote (MCP toolset) | Predefined workflow CLI |
+| Decision maker | The AI agent itself (step-by-step) | JSON config files (ready out of the box) |
+| Execution mode | Single tab, sequential | Multi-site parallel fan-out (`asyncio.gather`) |
+| Site knowledge | Generic — agent figures it out each time | Per-site selectors and wait logic preconfigured |
+| Anti-detect | None | `navigator.webdriver` masking + optional Camoufox |
+| Login state | No explicit management | Per-site `config/profiles/` dirs + Firefox cookie import |
+| Intent routing | None | `search_routes.json` decides which sites to probe |
+| Scoring / ranking | None | Three-stage: probe → evaluate → deep-dive |
+| WeChat search | None | `weixin` command: Sogou + Baidu + Yuanbao fan-out |
+
+**One-liner:**
+
+> `@playwright/mcp` gives the AI agent a **blank notebook and a pen**. `browser-ai` is the **filled-in answer sheet** — the writing's already done.
+
+### Recommended: install both
+
+They solve different problems; install both:
+
+```bash
+# browser-ai: CLI workflow (multi-source aggregation, anti-detect, preconfigured sites)
+pip install playwright camoufox
+playwright install chromium
+camoufox fetch
+
+# @playwright/mcp: MCP toolset (lets Claude / Cursor / Cline drive a browser directly)
+npm install -g @playwright/mcp
+```
+
+- `@playwright/mcp` fits **"let the AI freely explore new sites"** open-ended scenarios.
+- `browser-ai` fits **"Chinese AI product aggregation + walled-garden data retrieval"** predefined scenarios.
+
+Install both — they don't conflict. Pick whichever fits the task.
+
+---
+
 ## Quick start
 
 ```bash
