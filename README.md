@@ -113,7 +113,35 @@ npm install -g @playwright/mcp
 
 ## 快速开始
 
+### 方式一：`pip install`（推荐给最终用户）
+
 ```bash
+pip install browser-ai
+playwright install chromium
+
+# 可选：反检测场景用得到
+camoufox fetch
+
+# 首次运行会自动把模板配置拷到 ~/.config/browser-ai/config/
+browser-ai list
+
+# 登录某个站点（会弹一个真的浏览器窗口，自己手动登录一下就行）
+browser-ai login yuanbao
+
+# 全网智能搜索：AI + 搜索引擎一起上
+browser-ai search "python 异步编程最佳实践"
+
+# 公众号文章：搜狗 + 百度 + 元宝三路包抄
+browser-ai weixin "微信公众号 跨境电商"
+```
+
+> pip 安装模式下，配置和登录态落在 `~/.config/browser-ai/`（XDG 风格），和系统其他 dotfiles 一处管理。本地 checkout 模式下仍是仓库根目录的 `config/`，老用户行为不变。
+
+### 方式二：clone 仓库自己改（推荐给二次开发）
+
+```bash
+git clone https://github.com/Weiming3/browser-ai.git
+cd browser-ai
 pip install -r requirements.txt
 playwright install chromium
 
@@ -136,9 +164,6 @@ python scripts/browser_ai.py search "python 异步编程最佳实践"
 
 # 想单独戳某个源也行
 python scripts/browser_ai.py probe "kimi 长文本"
-
-# 公众号文章：搜狗 + 百度 + 元宝三路包抄
-python scripts/browser_ai.py weixin "微信公众号 跨境电商"
 ```
 
 ---
@@ -178,9 +203,10 @@ browser-ai/
 ├── README.md
 ├── README_en.md
 ├── LICENSE
+├── pyproject.toml         # pip 包元数据 + entry point
+├── requirements.txt
 ├── .gitignore
-├── .gitattributes
-└── requirements.txt
+└── .gitattributes
 ```
 
 ---

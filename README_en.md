@@ -113,7 +113,35 @@ Install both — they don't conflict. Pick whichever fits the task.
 
 ## Quick start
 
+### Option A: `pip install` (recommended for end users)
+
 ```bash
+pip install browser-ai
+playwright install chromium
+
+# Optional: anti-detect engine
+camoufox fetch
+
+# First run auto-copies the example configs into ~/.config/browser-ai/config/
+browser-ai list
+
+# Log into one site (opens a real browser window — log in there, then close it)
+browser-ai login yuanbao
+
+# Fan out a search across AI + search engines
+browser-ai search "python asyncio best practices"
+
+# Find WeChat articles via Sogou + Baidu + Yuanbao fallback
+browser-ai weixin "微信公众号 跨境电商"
+```
+
+> Under `pip install`, your config and login sessions live in `~/.config/browser-ai/` (XDG-style), keeping them with the rest of your dotfiles. Local checkouts still use the repo's own `config/` directory — existing behavior is unchanged.
+
+### Option B: clone the repo (recommended for hacking)
+
+```bash
+git clone https://github.com/Weiming3/browser-ai.git
+cd browser-ai
 pip install -r requirements.txt
 playwright install chromium
 
@@ -136,9 +164,6 @@ python scripts/browser_ai.py search "python asyncio best practices"
 
 # Or poke a single source
 python scripts/browser_ai.py probe "kimi long-text"
-
-# Find WeChat articles via Sogou + Baidu + Yuanbao fallback
-python scripts/browser_ai.py weixin "微信公众号 跨境电商"
 ```
 
 ---
@@ -178,9 +203,10 @@ browser-ai/
 ├── README.md
 ├── README_en.md
 ├── LICENSE
+├── pyproject.toml         # pip metadata + entry point
+├── requirements.txt
 ├── .gitignore
-├── .gitattributes
-└── requirements.txt
+└── .gitattributes
 ```
 
 ---

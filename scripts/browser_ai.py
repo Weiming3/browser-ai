@@ -63,10 +63,86 @@ except ImportError:
     CAMOUFOX_AVAILABLE = False
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
-CONFIG_DIR = SCRIPT_DIR.parent / "config"
+
+
+def _is_installed_via_pip() -> bool:
+    """Return True if this script is running from a pip-installed location.
+
+    After `pip install browser-ai`, __file__ lives under site-packages (or
+    dist-packages on Debian). When running from a local checkout, __file__
+    lives under the user's working tree and there's no site-packages in
+    the path.
+    """
+    resolved = str(Path(__file__).resolve())
+    return ("site-packages" in resolved or "dist-packages" in resolved)
+
+
+def _examples_source_dir() -> Path:
+    """Locate the bundled example config files.
+
+    - Local checkout: `<repo_root>/config/`
+    - pip install: data-files unpack to `<site.getuserbase()>/browser_ai_examples/`
+      (or `<sys.prefix>/browser_ai_examples/` for system installs)
+    """
+    if _is_installed_via_pip():
+        import site as _site
+        import sys as _sys
+        candidates = [
+            Path(_site.getuserbase()) / "browser_ai_examples",
+            Path(_sys.prefix) / "browser_ai_examples",
+        ]
+        for c in candidates:
+            if c.exists():
+                return c
+        return candidates[0]
+    return SCRIPT_DIR.parent / "config"
+
+
+def _user_config_base() -> Path:
+    """Where user-writable config + profiles live.
+
+    - Local checkout: `<repo_root>/` (existing behavior, sibling of scripts/)
+    - pip install: `~/.config/browser-ai/` (XDG-style, writable, persistent)
+    """
+    if _is_installed_via_pip():
+        base = Path.home() / ".config" / "browser-ai"
+        base.mkdir(parents=True, exist_ok=True)
+        return base
+    return SCRIPT_DIR.parent
+
+
+CONFIG_BASE = _user_config_base()
+CONFIG_DIR = CONFIG_BASE / "config"
 SITES_FILE = CONFIG_DIR / "ai_sites.json"
 ROUTES_FILE = CONFIG_DIR / "search_routes.json"
 PROFILES_DIR = CONFIG_DIR / "profiles"
+
+
+def ensure_config_layout() -> None:
+    """First-run setup for pip-installed mode.
+
+    Copies the bundled example files into the user config dir and creates
+    the profiles/ directory. Local-checkout runs are a no-op (the config
+    directory is the repo's own `config/`).
+    """
+    if not _is_installed_via_pip():
+        return
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    PROFILES_DIR.mkdir(parents=True, exist_ok=True)
+    examples = _examples_source_dir()
+    if not examples.exists():
+        return
+    import shutil
+    for example_name, target in (
+        ("ai_sites.example.json", SITES_FILE),
+        ("search_routes.example.json", ROUTES_FILE),
+    ):
+        if target.exists():
+            continue
+        src = examples / example_name
+        if src.exists():
+            shutil.copy(src, target)
+            print(f"[browser-ai] Created {target} from bundled template")
 
 DEFAULT_HEADLESS: bool = True
 FORCE_ENGINE: Optional[str] = None
@@ -673,6 +749,7 @@ def parse_args() -> tuple[list[str], bool]:
 
 
 def main() -> None:
+    ensure_config_layout()
     args, dry_run = parse_args()
     if len(args) < 1:
         print(__doc__)
