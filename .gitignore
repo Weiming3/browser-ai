@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+chrome_debug.log
+logs/
+*.lock
+
+# ===== Browser session data (CRITICAL: never commit) =====
+# Sensitive: these contain login cookies, localStorage, IndexedDB
+config/profiles/
+config/ai_sites.json
+config/search_routes.json
+
+# ===== Runtime artifacts =====
+tmp/
+.cache/
+playwright-report/
+test-results/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ===== OS / shell =====
+.DS_Store
+desktop.ini
+*.lnk

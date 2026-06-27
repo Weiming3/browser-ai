@@ -1,0 +1,111 @@
+{
+  "_说明": "智能搜索路由规则 - 定义任务类型→搜索源的映射。支持并行试探+质量评估+深度搜索。",
+  "_documentation": "Smart search routing. Maps a task type to one or more probe sources. Used by `python browser_ai.py search`.",
+  "_策略说明 / strategy notes": {
+    "probe": "试探阶段：并行查询多个源，每个源只取前3-5条结果 / probe stage: query multiple sources in parallel, take top 3-5 each",
+    "evaluate": "评估阶段：根据结果数量、相关性、独家信息量打分 / evaluate by count, relevance, unique content",
+    "deep_dive": "深度阶段：对高分源进行深度查询 / deep dive on high-scoring sources"
+  },
+  "routes": [
+    {
+      "task_type": "weixin_article",
+      "description": "公众号文章搜索 / WeChat public-account article search",
+      "trigger_keywords": ["公众号", "微信文章", "wechat article", "公众号文章"],
+      "probe_sources": [
+        {"site": "sogou_weixin", "weight": 1.0, "reason": "搜狗微信搜索专搜公众号，覆盖率最高 / sogou is the main aggregator"},
+        {"site": "yuanbao", "weight": 0.9, "reason": "元宝可联网搜索公众号内容并总结 / yuanbao can web-search and summarize"},
+        {"site": "baidu", "weight": 0.5, "reason": "百度可能搜到转载，但非原站 / baidu finds reprints only"},
+        {"site": "google", "weight": 0.4, "reason": "Google对公众号索引有限 / google indexes wechat poorly"}
+      ],
+      "deep_dive_sources": ["yuanbao", "kimi"],
+      "deep_dive_action": "将搜狗找到的文章URL喂给元宝/Kimi总结 / feed urls to yuanbao or kimi for summary"
+    },
+    {
+      "task_type": "general_search",
+      "description": "通用搜索 / general search",
+      "trigger_keywords": [],
+      "probe_sources": [
+        {"site": "baidu", "weight": 0.8, "reason": "中文内容覆盖好 / best Chinese coverage"},
+        {"site": "google", "weight": 0.9, "reason": "综合质量最高 / overall quality"},
+        {"site": "yuanbao", "weight": 0.7, "reason": "AI总结能力强 / strong AI summarization"}
+      ],
+      "deep_dive_sources": ["yuanbao", "kimi"],
+      "deep_dive_action": "让AI总结搜索结果 / let an AI summarize results"
+    },
+    {
+      "task_type": "tech_question",
+      "description": "技术问题 / technical question",
+      "trigger_keywords": ["代码", "bug", "error", "编程", "开发", "API", "框架", "code", "programming", "framework"],
+      "probe_sources": [
+        {"site": "google", "weight": 1.0, "reason": "技术内容索引最好 / best tech indexing"},
+        {"site": "yuanbao", "weight": 0.8, "reason": "可总结技术文档 / can summarize docs"},
+        {"site": "kimi", "weight": 0.7, "reason": "可读长文档 / reads long docs well"}
+      ],
+      "deep_dive_sources": ["kimi", "tongyi"],
+      "deep_dive_action": "把技术文档喂给Kimi读全文并总结 / feed docs to kimi"
+    },
+    {
+      "task_type": "knowledge_qa",
+      "description": "知识问答 / knowledge Q&A",
+      "trigger_keywords": ["是什么", "为什么", "怎么样", "如何", "区别", "what is", "why", "how"],
+      "probe_sources": [
+        {"site": "zhida", "weight": 1.0, "reason": "知乎直答专做知识问答 / zhida is purpose-built"},
+        {"site": "yuanbao", "weight": 0.9, "reason": "联网搜索+总结 / web search + summarize"},
+        {"site": "tongyi", "weight": 0.8, "reason": "通义千问知识面广 / tongyi has broad coverage"}
+      ],
+      "deep_dive_sources": ["zhida", "yuanbao"],
+      "deep_dive_action": "对比多个AI的答案，取共识+补充差异 / compare AI answers"
+    },
+    {
+      "task_type": "video_content",
+      "description": "视频内容理解 / video content understanding",
+      "trigger_keywords": ["视频", "B站", "bilibili", "抖音", "讲什么", "video", "douyin"],
+      "probe_sources": [
+        {"site": "bili_ai", "weight": 1.0, "reason": "B站原生搜索 / native bilibili search"},
+        {"site": "doubao", "weight": 0.95, "reason": "豆包可检索抖音视频并总结 / doubao can search douyin"}
+      ],
+      "deep_dive_sources": ["doubao", "kimi"],
+      "deep_dive_action": "让豆包直接检索抖音视频并总结，或把视频链接喂给Kimi / doubao search, kimi summarize"
+    },
+    {
+      "task_type": "long_text",
+      "description": "长文本处理 / long-text processing",
+      "trigger_keywords": ["总结", "摘要", "读一下", "这篇", "文档", "summarize", "summary", "read"],
+      "probe_sources": [
+        {"site": "kimi", "weight": 1.0, "reason": "Kimi长文本能力最强 / kimi is the strongest"},
+        {"site": "tongyi", "weight": 0.8, "reason": "通义也支持长文本 / tongyi also supports long text"}
+      ],
+      "deep_dive_sources": ["kimi"],
+      "deep_dive_action": "直接喂给Kimi读全文 / feed to kimi"
+    },
+    {
+      "task_type": "news",
+      "description": "新闻资讯 / news",
+      "trigger_keywords": ["新闻", "最新", "今天", "近期", "发生", "news", "today", "recent"],
+      "probe_sources": [
+        {"site": "baidu", "weight": 0.9, "reason": "百度新闻实时性好 / baidu news is fresh"},
+        {"site": "yuanbao", "weight": 1.0, "reason": "元宝联网搜索+总结 / yuanbao web + summary"},
+        {"site": "google", "weight": 0.7, "reason": "Google News / google news"}
+      ],
+      "deep_dive_sources": ["yuanbao"],
+      "deep_dive_action": "让元宝总结新闻要点 / yuanbao summary"
+    }
+  ],
+  "default_route": {
+    "task_type": "general_search",
+    "description": "默认路由：无法识别任务类型时使用 / fallback route",
+    "probe_sources": [
+      {"site": "baidu", "weight": 0.8},
+      {"site": "google", "weight": 0.9},
+      {"site": "yuanbao", "weight": 0.7}
+    ],
+    "deep_dive_sources": ["yuanbao", "kimi"]
+  },
+  "quality_scoring": {
+    "result_count_weight": 0.2,
+    "relevance_weight": 0.4,
+    "unique_info_weight": 0.3,
+    "source_authority_weight": 0.1,
+    "deep_dive_threshold": 0.6
+  }
+}

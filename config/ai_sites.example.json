@@ -1,0 +1,188 @@
+{
+  "_说明": "AI站点配置文件 - 复制本文件为 ai_sites.json 并按需修改。所有站点路径相对本目录的 profiles/ 下。",
+  "_documentation": "AI site configuration. Copy this file to ai_sites.json and edit as needed. Profile directories live under ./profiles/<site_name>/.",
+  "_字段说明 / field reference": {
+    "name": "站点唯一标识（英文，用于profile目录名） / unique site ID (English, used as profile directory name)",
+    "display_name": "显示名称（中文/任意） / display name shown to humans",
+    "url": "站点入口URL / entry URL",
+    "login_url": "登录页URL / login URL (used for first-time login)",
+    "login_hint": "登录提示 / hint shown to the user during login",
+    "capabilities": "能力列表 / capability list: search=搜索, summarize=总结, chat=对话, file_upload=文件上传, video_ai=视频AI理解",
+    "selectors": {
+      "input": "输入框CSS选择器 / input box CSS selector",
+      "submit": "提交按钮CSS选择器 / submit button CSS selector",
+      "response": "响应内容容器CSS选择器 / response container CSS selector"
+    },
+    "special": "特殊处理标记 / special handler tag",
+    "enabled": "是否启用 / enabled",
+    "preferred_engine": "首选引擎 / preferred engine: chromium(登录态持久化 / persistent profile) / camoufox(反检测强 / strong anti-detect)",
+    "cookie_domains": "用于Firefox批量导入时匹配的域名列表 / domains used to match Firefox cookies during batch import"
+  },
+  "_添加新站点示例 / example new site": {
+    "name": "my_ai",
+    "display_name": "我的AI",
+    "url": "https://my-ai.com/",
+    "login_url": "https://my-ai.com/login",
+    "login_hint": "用手机号登录 / login with phone number",
+    "capabilities": ["chat"],
+    "selectors": {
+      "input": "textarea",
+      "submit": "button[type='submit']",
+      "response": "div.answer"
+    },
+    "special": null,
+    "enabled": true
+  },
+  "sites": [
+    {
+      "name": "yuanbao",
+      "display_name": "腾讯元宝 / Tencent Yuanbao",
+      "url": "https://yuanbao.tencent.com/chat",
+      "login_url": "https://yuanbao.tencent.com/",
+      "login_hint": "点击右上角登录，用微信或QQ扫码登录 / login with WeChat or QQ",
+      "capabilities": ["search", "summarize", "chat", "file_upload", "weixin_bypass"],
+      "selectors": {
+        "input": "textarea[placeholder*='输入'], textarea[placeholder*='问'], div[contenteditable='true']",
+        "submit": "button[type='submit'], button[aria-label*='发送'], button[class*='send']",
+        "response": "div[class*='answer'], div[class*='message'], div[class*='content']"
+      },
+      "special": "weixin_bypass",
+      "enabled": true,
+      "preferred_engine": "chromium",
+      "cookie_domains": [".tencent.com", "yuanbao.tencent.com"]
+    },
+    {
+      "name": "kimi",
+      "display_name": "Kimi（月之暗面 / Moonshot AI）",
+      "url": "https://kimi.moonshot.cn/chat",
+      "login_url": "https://kimi.moonshot.cn/",
+      "login_hint": "点击登录，可用手机号或微信扫码 / login with phone or WeChat",
+      "capabilities": ["search", "summarize", "chat", "file_upload"],
+      "selectors": {
+        "input": "textarea[placeholder*='输入'], textarea.editor",
+        "submit": "button[type='submit'], button[aria-label*='发送'], div[class*='send-button']",
+        "response": "div[class*='chat-content'], div[class*='answer'], section[class*='message']"
+      },
+      "special": "long_text",
+      "enabled": true,
+      "preferred_engine": "chromium",
+      "cookie_domains": ["kimi.moonshot.cn", ".moonshot.cn"]
+    },
+    {
+      "name": "tongyi",
+      "display_name": "通义千问 / Tongyi Qianwen",
+      "url": "https://tongyi.aliyun.com/qianwen",
+      "login_url": "https://tongyi.aliyun.com/",
+      "login_hint": "右上角登录，用阿里账号或支付宝扫码 / login with Aliyun or Alipay",
+      "capabilities": ["search", "summarize", "chat", "file_upload"],
+      "selectors": {
+        "input": "textarea[placeholder*='输入'], textarea[id*='input'], div[contenteditable='true']",
+        "submit": "button[type='submit'], button[aria-label*='发送'], button[class*='send']",
+        "response": "div[class*='answer'], div[class*='message-content'], div[class*='bubble']"
+      },
+      "special": null,
+      "enabled": true,
+      "preferred_engine": "chromium",
+      "cookie_domains": ["tongyi.aliyun.com", ".aliyun.com"]
+    },
+    {
+      "name": "zhida",
+      "display_name": "知乎直答 / Zhida AI",
+      "url": "https://zhida.ai/",
+      "login_url": "https://zhida.ai/",
+      "login_hint": "用知乎账号登录 / login with Zhihu account",
+      "capabilities": ["search", "summarize", "chat"],
+      "selectors": {
+        "input": "textarea[placeholder*='输入'], textarea[placeholder*='问'], input[type='text']",
+        "submit": "button[type='submit'], button[aria-label*='搜索'], button[class*='send']",
+        "response": "div[class*='answer'], div[class*='result'], div[class*='content']"
+      },
+      "special": "knowledge_qa",
+      "enabled": true,
+      "preferred_engine": "chromium",
+      "cookie_domains": ["zhida.ai", ".zhida.ai"]
+    },
+    {
+      "name": "bili_ai",
+      "display_name": "B站AI搜索 / Bilibili AI Search",
+      "url": "https://search.bilibili.com/all",
+      "login_url": "https://passport.bilibili.com/login",
+      "login_hint": "用B站账号登录 / login with Bilibili account",
+      "capabilities": ["search", "video_ai"],
+      "selectors": {
+        "input": "input.search-keyword, input[placeholder*='搜索']",
+        "submit": "button.search-btn, button[type='submit']",
+        "response": "div.video-list, div.search-result, div.bili-video-card"
+      },
+      "special": "video_search",
+      "enabled": true,
+      "preferred_engine": "chromium",
+      "cookie_domains": ["bilibili.com", ".bilibili.com"]
+    },
+    {
+      "name": "doubao",
+      "display_name": "豆包 / Doubao",
+      "url": "https://www.doubao.com/",
+      "login_url": "https://www.doubao.com/",
+      "login_hint": "用手机号、抖音号或验证码登录 / login with phone, Douyin ID, or SMS code",
+      "capabilities": ["search", "chat", "video_ai"],
+      "selectors": {
+        "input": "textarea[placeholder*='输入'], textarea[placeholder*='问'], div[contenteditable='true']",
+        "submit": "button[type='submit'], button[aria-label*='发送'], button[class*='send']",
+        "response": "div[class*='answer'], div[class*='message-content'], div[class*='chat-content']"
+      },
+      "special": "douyin_video_search",
+      "enabled": true,
+      "preferred_engine": "chromium",
+      "cookie_domains": ["doubao.com", ".doubao.com", ".bytedance.com"]
+    },
+    {
+      "name": "sogou_weixin",
+      "display_name": "搜狗微信搜索（公众号专用） / Sogou WeChat Search",
+      "url": "https://weixin.sogou.com/",
+      "login_url": "https://weixin.sogou.com/",
+      "login_hint": "无需登录，直接使用 / no login required",
+      "capabilities": ["search"],
+      "selectors": {
+        "input": "input#query, input[name='query']",
+        "submit": "input#swz, button[type='submit'], a#swz",
+        "response": "div.results, div.txt-box, div[class*='news-box']"
+      },
+      "special": "weixin_search",
+      "enabled": true,
+      "preferred_engine": "camoufox"
+    },
+    {
+      "name": "baidu",
+      "display_name": "百度搜索 / Baidu Search",
+      "url": "https://www.baidu.com/",
+      "login_url": "https://www.baidu.com/",
+      "login_hint": "无需登录 / no login required",
+      "capabilities": ["search"],
+      "selectors": {
+        "input": "input#kw, input[name='wd']",
+        "submit": "input#su, button[type='submit']",
+        "response": "div#content_left, div.result, div[class*='result']"
+      },
+      "special": null,
+      "enabled": true,
+      "preferred_engine": "camoufox"
+    },
+    {
+      "name": "google",
+      "display_name": "Google搜索 / Google Search",
+      "url": "https://www.google.com/",
+      "login_url": "https://www.google.com/",
+      "login_hint": "无需登录 / no login required",
+      "capabilities": ["search"],
+      "selectors": {
+        "input": "input[name='q'], textarea[name='q']",
+        "submit": "button[type='submit'], button[aria-label*='Search']",
+        "response": "div#search, div.g, div[class*='g']"
+      },
+      "special": null,
+      "enabled": true,
+      "preferred_engine": "camoufox"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python source
+*.py text eol=lf
+
+# JSON / Markdown / YAML / TOML
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+
+# Batch files (Windows) — CRLF required
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts (Unix) — LF required
+*.sh text eol=lf
+
+# Configuration
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+LICENSE text eol=lf
+requirements.txt text eol=lf
+
+# Binary — do not touch
+*.png binary
+*.jpg binary
+*.ico binary
+*.zip binary
+*.exe binary
