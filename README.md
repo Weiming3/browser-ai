@@ -10,7 +10,7 @@
 	<img src="https://stone.professorlee.work/api/stone/Weiming3/browser-ai" alt="Stone Badge">
 </p>
 
-> A configuration-driven Playwright toolkit for orchestrating multiple AI chatbots and search engines through a unified CLI.
+> One CLI to ask a bunch of AI chatbots and search engines the same question, and get ranked answers back.
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -18,89 +18,77 @@
 
 ---
 
-## Legal Disclaimer
+## What is this thing?
 
-This project is a **personal learning and research tool**. By using it you agree that:
+It's a Python CLI that fans your query out to a handful of AI services (Yuanbao, Kimi, Tongyi, Zhida, Doubao, …) and search engines (Baidu, Google, Sogou WeChat), waits for them all to finish, and ranks the answers so you don't have to alt-tab through ten tabs yourself.
 
-- You will **comply with the Terms of Service** of every site you target (Yuanbao, Kimi, Tongyi, Zhida, Doubao, Baidu, Google, Sogou, etc.). Most AI platforms forbid automated access in their ToS.
-- You will **not use this for commercial scraping, bulk data collection, or to bypass paid content**.
-- The author **assumes no liability** for account bans, IP blocks, civil claims, or any other consequence arising from your use of this software.
-- The included anti-detect techniques (`init_script` to mask `navigator.webdriver`, Camoufox for fingerprint resistance) are present for educational purposes. Removing them is a valid choice.
+Under the hood it's Playwright with two engines you swap per site:
+
+- **Chromium with a persistent profile** — for sites that want you logged in.
+- **Camoufox** — an anti-detect Firefox, for sites that fingerprint regular browsers.
+
+Site config is **100% data-driven** in `config/ai_sites.json`. To plug in a new site you copy an entry and tweak the selectors. No Python needed.
 
 ---
 
-## What is this?
-
-`browser-ai` is a Python CLI that fans-out a single user query to multiple AI services (Yuanbao, Kimi, Tongyi, Zhida, Doubao, ...) and search engines (Baidu, Google, Sogou WeChat) and ranks the results. It is built on top of Playwright with two interchangeable engines:
-
-- **Chromium + persistent profile** for sites that require login state.
-- **Camoufox** (anti-detect Firefox) for scraping/search-heavy sites that fingerprint regular browsers.
-
-Site configuration is **100% data-driven** through `config/ai_sites.json`. To add a new site, copy an entry in the JSON and tweak the selectors — no code change required.
-
-### Highlights
-
-- **Dual engines**, picked per-site via `preferred_engine`.
-- **Intent-based routing** via `config/search_routes.json` — the CLI inspects the query keywords and picks the right probe set.
-- **Three-phase pipeline**: probe -> evaluate -> deep-dive.
-- **Batch import** of Firefox login cookies into Chromium profiles (useful when you already have sessions in Firefox).
-- **Interactive wizard** to add a new AI site (`add-site`).
-- **Cross-platform** (Windows / macOS / Linux).
-
-### Quick start
+## Quick start
 
 ```bash
-# 1. Install dependencies
 pip install -r requirements.txt
 playwright install chromium
 
-# Optional: install Camoufox for the anti-detect engine
+# Optional: pull in Camoufox for the anti-detect engine
 pip install camoufox
 camoufox fetch
 
-# 2. Prepare your local config (the example files are templates, not used at runtime)
+# Copy the example configs into your local working ones
 cp config/ai_sites.example.json config/ai_sites.json
 cp config/search_routes.example.json config/search_routes.json
 
-# 3. List configured sites
+# See what's wired up
 python scripts/browser_ai.py list
 
-# 4. Log into a site (Chromium visible window)
+# Log into one site (opens a real browser window — log in there, then close it)
 python scripts/browser_ai.py login yuanbao
 
-# 5. Run a smart search
+# Fan out a search across AI + search engines
 python scripts/browser_ai.py search "python asyncio best practices"
 
-# 6. Or just probe one source
+# Or poke a single source
 python scripts/browser_ai.py probe "kimi long-text"
 
-# 7. WeChat article search (sogou + baidu + yuanbao fallback)
+# Find WeChat articles via Sogou + Baidu + Yuanbao fallback
 python scripts/browser_ai.py weixin "微信公众号 跨境电商"
 ```
 
-### Optional: import login state from Firefox
+That last command is the one I reach for most. Three angles on the same query, ranked.
+
+---
+
+## Already logged in on Firefox?
+
+There's a script for that. It reads your local `cookies.sqlite` and writes them into the Chromium profiles under `config/profiles/`, so you don't have to log in twice.
 
 ```bash
-# Preview first
-python scripts/import_firefox_login.py --dry-run
-
-# Actually import
-python scripts/import_firefox_login.py
-
-# Import only one site
-python scripts/import_firefox_login.py --site yuanbao
+python scripts/import_firefox_login.py --dry-run   # peek first
+python scripts/import_firefox_login.py            # actually do it
+python scripts/import_firefox_login.py --site yuanbao  # just one site
 ```
 
-### Layout
+Run `--dry-run` first. Always.
+
+---
+
+## Layout
 
 ```
 browser-ai/
 ├── scripts/
-│   ├── browser_ai.py             # Main CLI
-│   ├── import_firefox_login.py   # Batch import Firefox cookies
-│   └── pre-commit-check.py       # Safety check hook
+│   ├── browser_ai.py             # main CLI
+│   ├── import_firefox_login.py   # Firefox cookie bridge
+│   └── pre-commit-check.py       # safety net before commits
 ├── config/
-│   ├── ai_sites.example.json     # Site template (copy to ai_sites.json)
+│   ├── ai_sites.example.json     # template — copy to ai_sites.json
 │   └── search_routes.example.json
 ├── tests/
 │   └── test_smoke.py             # 26 smoke tests
@@ -112,44 +100,53 @@ browser-ai/
 └── requirements.txt
 ```
 
-### SECURITY: Read before you use
+---
 
-> **You are solely responsible for any damage caused by leaking your session data.**
+## Adding a new AI site
 
-- **NEVER commit `config/profiles/`.** Each subdirectory holds cookies, localStorage and IndexedDB for one site — equivalent to an active login session. The `.gitignore` excludes it by default; **do NOT override that, even temporarily**.
-- **NEVER commit `config/ai_sites.json`** with sensitive `cookie_domains` either — it is also gitignored. Use the `*.example.json` files as templates.
-- **NEVER run `git add .` blindly.** Always review `git status` before committing.
-- The Firefox import script reads your local `cookies.sqlite`. It only ever writes to the local profile directory under `config/profiles/`. Do not move those profiles to a shared folder or cloud storage.
-- This repo ships with `scripts/pre-commit-check.py`. If you set it up as a Git hook, it will **block any commit** that accidentally stages `config/profiles/`, log files, or known credential patterns. Recommended:
-
-  ```bash
-  # From the project root:
-  python scripts/pre-commit-check.py          # run once before committing
-  cp scripts/pre-commit-check.py .git/hooks/pre-commit   # install as git hook
-  ```
-
-### Add a new AI site
-
-The fastest path is `add-site`:
+Easiest is the wizard:
 
 ```bash
 python scripts/browser_ai.py add-site
 ```
 
-Otherwise copy an entry in `config/ai_sites.json` and update: `name`, `url`, `login_url`, `login_hint`, `selectors.input`, `selectors.submit`, `selectors.response`, `preferred_engine`.
+If you prefer to edit JSON directly, copy a site block in `config/ai_sites.json` and update: `name`, `url`, `login_url`, `login_hint`, `selectors.input`, `selectors.submit`, `selectors.response`, `preferred_engine`. Restart the CLI and the new site is live.
 
-### Why two engines?
+---
 
-| Engine | When to use |
-|--------|-------------|
-| Chromium + profile | Sites where you need persistent login state (Yuanbao, Kimi, Doubao, Bilibili). |
-| Camoufox | Search/scraping sites that block headless Chromium (Baidu, Google, Sogou WeChat). |
+## Which engine do I use?
 
-### Notes
+| Engine | Reach for it when… |
+|--------|--------------------|
+| Chromium + profile | The site needs you logged in (Yuanbao, Kimi, Doubao, Bilibili). |
+| Camoufox | A search/scraping site blocks headless Chromium (Baidu, Google, Sogou WeChat). |
 
-- `login` and `--headed` always open a visible window. Other commands run headless by default.
-- Baidu/Google headless may still trigger captcha; use `--headed` when that happens.
-- The default site config is a sample. Tailor it to your own workflow before publishing or sharing.
+Set `preferred_engine` per site in `ai_sites.json` and that's the only switch you flip. Both engines are independent — keep them both in if you want, rip them out if you don't. They're not load-bearing.
+
+---
+
+## Two things you actually need to know
+
+**1. Keep your session data off the repo.**
+
+`config/profiles/` holds cookies, localStorage and IndexedDB — basically active login sessions for each site. The `.gitignore` already excludes it; **leave it that way**. The real `config/ai_sites.json` is gitignored too, and the `*.example.json` files are templates you copy from. The bundled `scripts/pre-commit-check.py` blocks any commit that tries to sneak those files in. Recommended:
+
+```bash
+python scripts/pre-commit-check.py                       # run before each commit
+cp scripts/pre-commit-check.py .git/hooks/pre-commit   # install as git hook
+```
+
+**2. The site's ToS still wins.**
+
+Most AI platforms ban automated access in their terms. Use this for personal research, not for scraping-as-a-service or anything that earns money from someone else's content. The author isn't liable if you get rate-limited, IP-banned, or worse.
+
+---
+
+## Misc notes
+
+- `login` and `--headed` always open a visible window. Everything else runs headless.
+- Baidu/Google headless can still hit a captcha — pass `--headed` when that happens.
+- The default site config is a sample, not gospel. Tune it to how you actually work before you share it.
 
 ---
 
