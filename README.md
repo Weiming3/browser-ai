@@ -31,6 +31,43 @@ Site configuration is **100% data-driven** through `config/ai_sites.json`. To pl
 
 ---
 
+## How is this different from OpenRouter / LiteLLM?
+
+The natural first reaction is "isn't this just another AI router?" — fair question, but the routing target is different.
+
+|  | OpenRouter / LiteLLM / OneAPI / Portkey | browser-ai |
+|---|---|---|
+| Routing target | LLM **API endpoints** | AI **web products** + **search engine pages** |
+| Call mechanism | HTTP API (OpenAI-compatible) | Browser automation (Playwright) |
+| Auth | API keys (token billing) | Your own **login sessions** (cookies / profiles) |
+| Coverage | LLM providers that expose an API | Anything with a web UI — **even without an API** |
+| Output | One model's text reply | Page text from multiple sources + **ranked aggregation** |
+| Form factor | Backend service / gateway | Local CLI |
+
+There are three concrete things an API router can't do that `browser-ai` covers:
+
+**1. Sources that have no API, only a website.**
+
+Tencent Yuanbao, Zhihu Zhida, Doubao on the web, Bilibili AI summaries, Sogou WeChat — none expose a public API, yet all are useful query targets. An API router physically can't see this layer.
+
+**2. Walled-garden content that mainstream LLMs can't see.**
+
+Gemini, GPT and Claude have training cutoffs and are heavily English-centric. They have weak coverage of content that lives behind Chinese platform walls:
+
+- **WeChat public accounts (公众号)** — the dominant long-form channel in Chinese, almost never indexed by Google and barely represented in training corpora.
+- **Baidu Tieba, Zhihu, Xiaohongshu** — strict anti-scraping, login-gated, invisible to Western crawlers.
+- **Real-time Chinese content** — anything posted last week, any new viral article: the model has never seen it.
+
+`browser-ai` reaches these sources through Sogou WeChat (the only public WeChat aggregator), Baidu, and your logged-in Yuanbao/Kimi sessions. You're **scraping live, in-context Chinese-language ground truth**, not asking an LLM what it remembers from two years ago. The `weixin` command is built for exactly this — Sogou + Baidu + Yuanbao fan out the same query and surface Chinese long-form content the LLM can't reach, **adding a thinking dimension that the model's own knowledge can't supply**.
+
+**3. Mixed AI + search fanout.**
+
+Most AI routers only fan out across LLMs. `browser-ai` mixes AI products with search engines (Baidu, Google, Sogou WeChat) in the same query — which is the only practical way to "ask the AI and look up references" in one shot.
+
+**In one line:** OpenRouter is an **API abstraction layer**. `browser-ai` is a **web abstraction layer** — it turns any web-accessible AI product or search engine into a unified query target.
+
+---
+
 ## Quick start
 
 ```bash
