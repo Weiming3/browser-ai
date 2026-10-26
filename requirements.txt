@@ -1,2 +1,14 @@
 playwright>=1.40.0
 camoufox>=0.4.0
+
+# Explicit floors for transitive dependencies that previously resolved to
+# versions with known CVEs (clears osv-scanner findings for the tree above).
+anyio>=4.15.1
+certifi>=2026.10.23
+h11>=0.16.0
+h2>=4.4.1
+hpack>=4.2.0
+httpx>=0.28.1
+idna>=3.20
+orjson>=3.13.0
+requests>=2.34.2
