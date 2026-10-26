@@ -65,3 +65,7 @@ htmlcov/
 .DS_Store
 desktop.ini
 *.lnk
+
+# 运行态与密钥（审计补）
+node_modules/
+*.pyc
